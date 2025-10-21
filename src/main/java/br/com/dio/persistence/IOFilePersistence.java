@@ -1,12 +1,8 @@
 package br.com.dio.persistence;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.stream.Stream;
 
 public class IOFilePersistence implements FilePersistence{
 
@@ -39,22 +35,65 @@ public class IOFilePersistence implements FilePersistence{
 
     @Override
     public boolean remove(String sentence) {
-        return false;
+        var content = findAll();
+        var contentList = new ArrayList<>(Stream.of(content.split(System.lineSeparator())).toList());
+
+        if (contentList.stream().noneMatch(c -> c.contains(sentence))) return false;
+        clearFile();
+        contentList.stream()
+                .filter(c -> !c.contains(sentence))
+                .forEach(this::write);
+
+
+        return true;
     }
 
     @Override
     public String replace(String oldContent, String newContant) {
-        return "";
+        var content = findAll();
+        var contentList = new ArrayList<>(Stream.of(content.split(System.lineSeparator())).toList());
+        if (contentList.stream().noneMatch(c -> c.contains(oldContent))) return "";
+
+        clearFile();
+        contentList.stream()
+                .map(c -> !c.contains(oldContent) ? newContant : c)
+                .forEach(this::write);
+        return newContant;
     }
 
     @Override
     public String findAll() {
-        return "";
+        var content = new StringBuilder();
+        try(var reader = new BufferedReader (new FileReader(currentDir + storedDir + fileName))){
+            String line;
+            do{
+                line = reader.readLine();
+                if ((line != null)) content.append(line).append(System.lineSeparator());
+            }while (line != null);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+
+        return content.toString();
     }
 
     @Override
     public String findBy(String sentence) {
-        return "";
+        var found = "";
+        try (var reader = new BufferedReader(new FileReader(currentDir + storedDir + fileName))){
+            String line = reader.readLine();
+            while (line != null){
+                if ((line.contains(sentence))){
+                    found = line;
+                    break;
+                }
+            }
+        } catch (IOException ex){
+            ex.printStackTrace();
+        }
+        return found;
     }
 
     private void clearFile() {
