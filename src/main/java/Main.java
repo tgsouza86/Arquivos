@@ -15,7 +15,14 @@ public class Main {
         System.out.println("===========================");
         System.out.println(persistence.findAll());
         System.out.println("===========================");
-
+        System.out.println(persistence.remove("ricardo@"));
+        System.out.println("======lll=====================");
+        System.out.println(persistence.remove("joana@"));
+        System.out.println("======lll=====================");
+        System.out.println(persistence.findBy("bia@"));
+        System.out.println("======lll=====================");
+        System.out.println(persistence.findAll());
+        System.out.println("===========================");
 
     }
 }
